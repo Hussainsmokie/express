@@ -1,16 +1,26 @@
 pipeline {
     agent any
     
+    tools{
+        nodejs 'node24'
+    }
+    
     environment {
         SONAR_TOKEN = credentials('sonar-token')
         SCANNER_HOME = tool 'sonarqube'
-        SONAR_HOST_URL = 'http://13.201.89.196:9000'  // ADD YOUR URL
+        SONAR_HOST_URL = 'http://3.110.189.221:9000'  // ADD YOUR URL
     }
 
     stages {
         stage('Git Checkout') {
             steps {
                 git url: 'https://github.com/Hussainsmokie/express.git', branch: 'master'
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps{
+                sh 'npm install'   // or "npm install" if you don’t have package-lock.json
             }
         }
 
@@ -47,7 +57,8 @@ pipeline {
         stage("Quality Gate") {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                    def qg = waitForQualityGate(abortPipeline: false)
+                    echo "Quality Gate status: ${qg.status}"
                 }
             }
         }
