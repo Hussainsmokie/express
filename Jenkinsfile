@@ -69,7 +69,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: '**/trivy-*.{txt,json}', allowEmptyArchive: true
+            archiveArtifacts artifacts: '**/trivy-*.txt, **/trivy-*.json', allowEmptyArchive: true
         }
     }
 }
