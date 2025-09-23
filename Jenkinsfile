@@ -8,7 +8,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonar-token')
         SCANNER_HOME = tool 'sonarqube'
-        SONAR_HOST_URL = 'http://13.201.89.196:9000'
+        SONAR_HOST_URL = 'http://3.110.189.221:9000'
     }
 
     stages {
@@ -58,7 +58,6 @@ pipeline {
             steps {
                 script {
                     timeout(time: 2, unit: 'MINUTES') {
-                        // Capture SonarQube Quality Gate result
                         def qg = waitForQualityGate(abortPipeline: false)
                         echo "Quality Gate status: ${qg.status}"
                     }
@@ -69,7 +68,31 @@ pipeline {
 
     post {
         always {
+            // Archive Trivy reports
             archiveArtifacts artifacts: '**/trivy-*.txt, **/trivy-*.json', allowEmptyArchive: true
+            
+            // Send email notification
+            script {
+                def buildStatus = currentBuild.currentResult
+                def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: 'Github User'
+                
+                emailext (
+                    subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """
+                        <p>This is a Jenkins HOTSTAR CICD pipeline status.</p>
+                        <p>Project: ${env.JOB_NAME}</p>
+                        <p>Build Number: ${env.BUILD_NUMBER}</p>
+                        <p>Build Status: ${buildStatus}</p>
+                        <p>Started by: ${buildUser}</p>
+                        <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                    """,
+                    to: 'nousath1609@gmail.com',
+                    from: 'nousath1609@gmail.com',
+                    replyTo: 'nousath1609@gmail.com',
+                    mimeType: 'text/html',
+                    attachmentsPattern: 'trivy-fs-report.txt,trivy-dependency-report.json'
+                )
+            }
         }
     }
 }
