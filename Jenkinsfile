@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'node24'   // Make sure this matches your Jenkins NodeJS tool name
+        nodejs 'node24'   // Adjust to match your Jenkins NodeJS tool name
     }
 
     environment {
@@ -58,6 +58,7 @@ pipeline {
             steps {
                 script {
                     timeout(time: 2, unit: 'MINUTES') {
+                        // Capture SonarQube Quality Gate result
                         def qg = waitForQualityGate(abortPipeline: false)
                         echo "Quality Gate status: ${qg.status}"
                     }
