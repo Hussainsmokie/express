@@ -8,7 +8,7 @@ pipeline {
     environment {
         SONAR_TOKEN = credentials('sonar-token')
         SCANNER_HOME = tool 'sonarqube'
-        SONAR_HOST_URL = 'http://3.110.189.221:9000'
+        SONAR_HOST_URL = 'http://3.110.189.221:9000' //this has to be changed whenever we spin an container
     }
 
     stages {
@@ -79,7 +79,7 @@ pipeline {
                 emailext (
                     subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                     body: """
-                        <p>This is a Jenkins HOTSTAR CICD pipeline status.</p>
+                        <p>This is a Sonar Scanner pipeline CICD pipeline status.</p>
                         <p>Project: ${env.JOB_NAME}</p>
                         <p>Build Number: ${env.BUILD_NUMBER}</p>
                         <p>Build Status: ${buildStatus}</p>
